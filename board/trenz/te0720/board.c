@@ -119,19 +119,7 @@ int board_late_init(void)
 		break;
 	}
 
-	/* USB reset */
-	/*mii write 1a 7 10; mii write 1a 7 0*/
 
-/*
-#if defined(CINFIG_MII_INIT)
-	mii_init();
-#endif
-	devname = miiphy_get_current_dev();
-	miiphy_write(devname, 0x1A, 0x07, 0x10);
-	miiphy_write(devname, 0x1A, 0x07, 0x10);
-	miiphy_write(devname, 0x1A, 0x07, 0x00);
-	miiphy_write(devname, 0x1A, 0x07, 0x00);
-*/
 	return 0;
 }
 
@@ -221,7 +209,8 @@ int board_eth_init(bd_t *bis)
 	sc_ver[2] = '0' + ((data >> 4) & 0xF);		// SC x.?x
 	sc_ver[3] = '0' + (data & 0xF);			// SC x.x?
 	setenv("scver", sc_ver);
-
+	/* USB reset */
+	/*mii write 1a 7 10; mii write 1a 7 0*/
 	miiphy_write(devname, 0x1A, 0x07, 0x10);
 	miiphy_write(devname, 0x1A, 0x07, 0x00);
 

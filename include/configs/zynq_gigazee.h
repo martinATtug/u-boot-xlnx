@@ -273,25 +273,23 @@
 
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	"bitstream_image=boot.bin\0"					\
-	"bitstream_addr=0x1000000\0"					\
-	"bitstream_size=0x450000\0"					\
-	"bitstream_offset=0x000000\0"					\
-	"kernel_image=uImage\0"						\
-	"kernel_addr=0x3000000\0"					\
-	"kernel_size=0x500000\0"					\
-	"kernel_offset=0x450000\0" 					\
-	"devicetree_image=devicetree.dtb\0"				\
-	"devicetree_addr=0x2A00000\0"					\
-	"devicetree_size=0x20000\0"					\
-	"devicetree_offset=0x950000\0"					\
-	"ramdisk_image=uramdisk.image.gz\0"				\
-	"ramdisk_addr=0x2000000\0"					\
-	"ramdisk_size=0x5E0000\0"					\
-	"ramdisk_offset=0x970000\0" 					\
-	"fdt_high=0x20000000\0"						\
-	"initrd_high=0x20000000\0"					\
+#define CONFIG_EXTRA_ENV_SETTINGS						\
+	"bitstream_image=boot.bin\0"						\
+	"bitstream_addr=0x1000000\0"						\
+	"bitstream_size=0x450000\0"						\
+	"bitstream_offset=0x000000\0"						\
+	"kernel_image=uImage\0"							\
+	"kernel_addr=0x3000000\0"						\
+	"kernel_size=0x500000\0"						\
+	"kernel_offset=0x450000\0" 						\
+	"devicetree_image=devicetree.dtb\0"					\
+	"devicetree_addr=0x2A00000\0"						\
+	"devicetree_size=0x20000\0"						\
+	"devicetree_offset=0x950000\0"						\
+	"ramdisk_image=uramdisk.image.gz\0"					\
+	"ramdisk_addr=0x2000000\0"						\
+	"ramdisk_size=0x5E0000\0"						\
+	"ramdisk_offset=0x970000\0" 						\
 	"qspiboot=echo Trenz-Electronic ${board} SC ${scver} && "			\
 		"echo Copying Linux from QSPI flash to RAM... && " 			\
 		"sf probe 0 0 0 && " 							\
@@ -312,7 +310,7 @@
 		"bootm ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0" 	\
 	"tftpfetch=echo TFTPing Linux to RAM... && " 				\
 		"mw.b ${bitstream_addr} FF ${bitstream_size} &&" 		\
-		"tftp ${bitstream_addr} ${bitstream_image} && " 	\
+		"tftp ${bitstream_addr} ${bitstream_image} && " 		\
 		"mw.b ${kernel_addr} FF ${kernel_size} &&" 			\
 		"tftp ${kernel_addr} ${kernel_image} && " 			\
 		"mw.b ${devicetree_addr} FF ${devicetree_size} &&" 		\
@@ -356,6 +354,6 @@
 		"fdt addr ${devicetree_addr} &&"				\
 		"fdt set /amba/eth local-mac-address ${eui48} &&"		\
 		"bootm  ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0"	\
-	"updatemac=fdt addr ${devicetree_addr} && "\
-		"fdt set /amba/eth local-mac-address \"${eui48}\"\0"
+	"updatemac=fdt addr ${devicetree_addr} && "				\
+		"fdt set /amba/eth local-mac-address ${eui48}\0"
 #endif /* __CONFIG_ZYNQ_GIGAZEE_H */
