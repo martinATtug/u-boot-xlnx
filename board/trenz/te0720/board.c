@@ -78,16 +78,7 @@ int board_init(void)
 	 * will hang Linux
 	 */
 	writel(0x26d, 0xe0001014);
-
-	/* temporary hack to take USB out of reset til the is fixed
-	 * in Linux
-	 */
-	writel(0x80, 0xe000a204);
-	writel(0x80, 0xe000a208);
-	writel(0x80, 0xe000a040);
-	writel(0x00, 0xe000a040);
-	writel(0x80, 0xe000a040);
-
+	
 	icache_enable();
 
 #ifdef CONFIG_FPGA
@@ -108,8 +99,13 @@ char bin2char(unsigned char c)
 
 int board_late_init(void)
 {
-	// MII patch
+//	const char	*devname;
+
+	// MII patch enable MDIO interface
 	*((uint *)0xE000B000) = 0x00000010;
+	// set MDIO clock divider for cpu1x 160
+	*((uint *)0xE000B004) = 0x00100000;
+
 
 	switch ((zynq_slcr_get_boot_mode()) & BOOT_MODES_MASK) {
 	case QSPI_MODE:
@@ -122,20 +118,34 @@ int board_late_init(void)
 		setenv("modeboot", "");
 		break;
 	}
+
+	/* USB reset */
+	/*mii write 1a 7 10; mii write 1a 7 0*/
+
+/*
+#if defined(CINFIG_MII_INIT)
+	mii_init();
+#endif
+	devname = miiphy_get_current_dev();
+	miiphy_write(devname, 0x1A, 0x07, 0x10);
+	miiphy_write(devname, 0x1A, 0x07, 0x10);
+	miiphy_write(devname, 0x1A, 0x07, 0x00);
+	miiphy_write(devname, 0x1A, 0x07, 0x00);
+*/
 	return 0;
 }
 
 #ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)
 {
-	unsigned char	i;
+	unsigned char	i, temp_grade;
 	unsigned char	mac[6];
 	unsigned short	data;
 	unsigned int	model;
-	char		*devname;
+	const char	*devname;
 	char ethaddr[] = "00:0a:35:00:01:32";
 	char eui48[] = "[00 0A 35 00 01 32]";
-	char board[] = "TE0000-00";
+	char board[] = "TE0000-00-??F";
 	char sc_ver[] = "0.00";
 
 	u32 ret = 0;
@@ -189,25 +199,32 @@ int board_eth_init(bd_t *bis)
 	}
 	setenv("ethaddr", ethaddr);
 	setenv("eui48", eui48);
-/*Configure board information*/
+	/*Configure board information*/
 	miiphy_read(devname, 0x1A, 0x02, &data);
 	model = data << 6;
 	miiphy_read(devname, 0x1A, 0x03, &data);
 	model |= (data >> 10) & 0x3F;
-
 	board[3] = '0' + ((model >> 12) & 0xF); //7
 	board[4] = '0' + ((model >> 8) & 0xF);  //2
-	board[5] = '0' + ((model >> 4) & 0xF);  //0-0
-
-	board[8] = '0' + (model & 0xF);
-
+	board[5] = '0' + ((model >> 4) & 0xF);  //0
+	board[8] = '0' + (model & 0xF);		//-01
+	sc_ver[0] = '0' + (data & 0xF);		// SC ?.xx
+	miiphy_read(devname, 0x1A, 0x04, &data);
+	board[10] = '0' + ((data >> 14) & 0x3);	//Speed grade
+	temp_grade = (data >> 12) & 0x3;
+	switch(temp_grade){
+		case 0: board[11] = 'C'; break;
+		case 1: board[11] = 'E'; break;
+		case 2: board[11] = 'I'; break;
+	}
 	setenv("board", board);
-
-	sc_ver[0] = '0' + (data & 0xF);
-//	sc_ver[2] = ???; TODO minor version bits!
-	
+	sc_ver[2] = '0' + ((data >> 4) & 0xF);		// SC x.?x
+	sc_ver[3] = '0' + (data & 0xF);			// SC x.x?
 	setenv("scver", sc_ver);
-	
+
+	miiphy_write(devname, 0x1A, 0x07, 0x10);
+	miiphy_write(devname, 0x1A, 0x07, 0x00);
+
 	return ret;
 }
 #endif

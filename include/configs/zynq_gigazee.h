@@ -183,7 +183,6 @@
 /* I2C */
 #ifdef CONFIG_ZYNQ_I2C
 # define CONFIG_CMD_I2C
-# define CONFIG_ZYNQ_I2C_CTLR_0
 # define CONFIG_HARD_I2C		1
 # define CONFIG_SYS_I2C_SPEED		100000
 # define CONFIG_SYS_I2C_SLAVE		1
@@ -271,7 +270,6 @@
 #define SD_BASEADDR			0xE0100000
 // For MMC onboard chip 
 //#define SD_BASEADDR     		0xE0101000
-//	"ethaddr=00:0a:35:00:01:22\0"					\
 
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
@@ -313,15 +311,25 @@
 		"fdt set /amba/eth local-mac-address ${eui48} &&"		\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0" 	\
 	"tftpfetch=echo TFTPing Linux to RAM... && " 				\
+		"mw.b ${bitstream_addr} FF ${bitstream_size} &&" 		\
+		"tftp ${bitstream_addr} ${bitstream_image} && " 	\
+		"mw.b ${kernel_addr} FF ${kernel_size} &&" 			\
 		"tftp ${kernel_addr} ${kernel_image} && " 			\
+		"mw.b ${devicetree_addr} FF ${devicetree_size} &&" 		\
 		"tftp ${devicetree_addr} ${devicetree_image} && " 		\
+		"mw.b ${ramdisk_addr} FF ${ramdisk_size} &&"	 		\
 		"tftp ${ramdisk_addr} ${ramdisk_image} && " 			\
-		"fdt addr 0x950000 \0"						\
+		"fdt addr ${devicetree_addr} &&"				\
+		"fdt set /amba/eth local-mac-address ${eui48}\0"		\
 	"sdfetch=echo Read files from SD... && " 				\
 		"mmcinfo && " 							\
+		"mw.b ${bitstream_addr} FF ${bitstream_size} &&" 		\
 		"fatload mmc 0 ${bitstream_addr} ${bitstream_image} && " 	\
+		"mw.b ${kernel_addr} FF ${kernel_size} &&" 			\
 		"fatload mmc 0 ${kernel_addr} ${kernel_image} && " 		\
+		"mw.b ${devicetree_addr} FF ${devicetree_size} &&" 		\
 		"fatload mmc 0 ${devicetree_addr} ${devicetree_image} && " 	\
+		"mw.b ${ramdisk_addr} FF ${ramdisk_size} &&"	 		\
 		"fatload mmc 0 ${ramdisk_addr} ${ramdisk_image} && " 		\
 		"fdt addr ${devicetree_addr} &&"				\
 		"fdt set /amba/eth local-mac-address ${eui48}\0"		\
@@ -345,6 +353,8 @@
 		"tftp ${kernel_addr} ${kernel_image} && " 			\
 		"tftp ${devicetree_addr} ${devicetree_image} && " 		\
 		"tftp ${ramdisk_addr} ${ramdisk_image} && " 			\
+		"fdt addr ${devicetree_addr} &&"				\
+		"fdt set /amba/eth local-mac-address ${eui48} &&"		\
 		"bootm  ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0"	\
 	"updatemac=fdt addr ${devicetree_addr} && "\
 		"fdt set /amba/eth local-mac-address \"${eui48}\"\0"
