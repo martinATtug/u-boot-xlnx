@@ -133,6 +133,7 @@ int board_eth_init(bd_t *bis)
 	const char	*devname;
 	char ethaddr[] = "00:0a:35:00:01:32";
 	char eui48[] = "[00 0A 35 00 01 32]";
+	char eui48_test[] = "[00 0A 35 00 01 32]";
 	char board[] = "TE0000-00-??F";
 	char sc_ver[] = "0.00";
 
@@ -184,9 +185,19 @@ int board_eth_init(bd_t *bis)
 		ethaddr[i*3 + 1] = bin2char(mac[i] & 0x0F);
 		eui48[i*3 + 1] =  bin2char(mac[i] >> 4);
 		eui48[i*3 + 2] =  bin2char(mac[i] & 0x0F);
+		// Second MAC address for test purposes only!
+		if(i>2){	// High part are the same
+			eui48_test[i*3 + 1] =  bin2char(mac[i] >> 4);
+			eui48_test[i*3 + 2] =  bin2char(mac[i] & 0x0F);
+		}
+		else{		// Low part xor from 
+			eui48_test[i*3 + 1] =  bin2char((mac[i] ^ 0x55) >> 4);
+			eui48_test[i*3 + 2] =  bin2char((mac[i] ^ 0x55) & 0x0F);
+		}
 	}
 	setenv("ethaddr", ethaddr);
 	setenv("eui48", eui48);
+	setenv("eui48_test", eui48_test);
 	/*Configure board information*/
 	miiphy_read(devname, 0x1A, 0x02, &data);
 	model = data << 6;

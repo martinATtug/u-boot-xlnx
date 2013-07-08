@@ -24,6 +24,7 @@
 #define __CONFIG_ZYNQ_GIGAZEE_H
 
 #define PHYS_SDRAM_1_SIZE (1024 * 1024 * 1024)
+//#define PHYS_SDRAM_1_SIZE (128 * 1024 * 1024)
 
 #define CONFIG_ZYNQ_SERIAL_UART0
 #define CONFIG_ZYNQ_GEM0
@@ -290,6 +291,8 @@
 	"ramdisk_addr=0x2000000\0"						\
 	"ramdisk_size=0x5E0000\0"						\
 	"ramdisk_offset=0x970000\0" 						\
+	"userscript_image=u-boot.cmd\0"						\
+	"userscript_addr=0x00000000\0"						\
 	"qspiboot=echo Trenz-Electronic ${board} SC ${scver} && "			\
 		"echo Copying Linux from QSPI flash to RAM... && " 			\
 		"sf probe 0 0 0 && " 							\
@@ -300,6 +303,9 @@
 		"fdt set /amba/eth local-mac-address ${eui48} &&"		\
 		"bootm  ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0"	\
 	"sdboot=echo Trenz-Electronic ${board}  ${scver} && "			\
+                "mmcinfo && "                                                   \
+		"fatload mmc 0 ${userscript_addr} ${userscript_image} &&" 	\
+		"source ${userscript_addr};"					\
 		"echo Copying Linux from SD to RAM... && " 			\
 		"mmcinfo && " 							\
 		"fatload mmc 0 ${kernel_addr} ${kernel_image} && " 		\
@@ -336,7 +342,8 @@
 		"sf update ${bitstream_addr} ${bitstream_offset} ${bitstream_size} && " 	\
 		"sf update ${kernel_addr} ${kernel_offset} ${kernel_size} && " 			\
 		"sf update ${devicetree_addr} ${devicetree_offset} ${devicetree_size} && "	\
-		"sf update ${ramdisk_addr} ${ramdisk_offset} ${ramdisk_size}\0" 		\
+		"sf update ${ramdisk_addr} ${ramdisk_offset} ${ramdisk_size} && " 		\
+		"env default -a && env save \0"							\
 	"reflash_linux=echo Reflash linux from Memory... && " 					\
 		"sf probe 0 0 0 && " 								\
 		"sf update ${kernel_addr} ${kernel_offset} ${kernel_size} && " 			\
@@ -347,6 +354,7 @@
 		"sf update ${devicetree_addr} ${devicetree_offset} ${devicetree_size}\0"	\
 	"linux=bootm  ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0"	\
 	"linaro=bootm  ${kernel_addr} - ${devicetree_addr}\0"			\
+	"oldboot=go ${kernel_addr}\0"	\
 	"tftpboot=echo TFTPing Linux to RAM... && " 				\
 		"tftp ${kernel_addr} ${kernel_image} && " 			\
 		"tftp ${devicetree_addr} ${devicetree_image} && " 		\
