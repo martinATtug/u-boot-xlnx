@@ -154,7 +154,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		byte_addr = 0;
 	}
 
-	printf("SF: program %s %zu bytes @ %#x\n",
+	debug("SF: program %s %zu bytes @ %#x\n",
 	      ret ? "failure" : "success", len, offset);
 
 	spi_release_bus(flash->spi);
@@ -300,7 +300,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 			goto out;
 	}
 
-	printf("SF: Successfully erased %zu bytes @ %#x\n", len, start);
+	debug("SF: Successfully erased %zu bytes @ %#x\n", len, start);
 
  out:
 	spi_release_bus(flash->spi);
