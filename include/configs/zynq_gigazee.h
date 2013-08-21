@@ -47,6 +47,8 @@
 #define CONFIG_SYS_SDRAM_BASE	0
 #define CONFIG_SYS_SDRAM_SIZE	PHYS_SDRAM_1_SIZE
 
+/* Disable load envinronment */
+#define CONFIG_ENV_IS_NOWHERE
 /* Total Size of Environment Sector */
 #define CONFIG_ENV_SIZE			(128 << 10)
 
@@ -295,7 +297,7 @@
 	"userscript_addr=0x00000000\0"			\
     "fdt_high=0x20000000\0"                 \
     "initrd_high=0x20000000\0"              \
-	"qspiboot_old=echo Trenz-Electronic ${board} SC ${scver} && "			\
+	"qspiboot=echo Trenz-Electronic ${board} SC ${scver} && "			\
 		"echo Copying Linux from QSPI flash to RAM... && " 			\
 		"sf probe 0 0 0 && " 							\
 		"sf read ${kernel_addr} ${kernel_offset} ${kernel_size} && "		\
@@ -304,16 +306,10 @@
 		"fdt addr ${devicetree_addr} &&"				\
 		"fdt set /amba/eth local-mac-address ${eui48} &&"		\
 		"bootm  ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0"	\
-    "qspiboot=echo Trenz-Electronic ${board} SC ${scver} && "           \
-        "fdt addr ${devicetree_addr} &&"                \
-        "fdt set /amba/eth local-mac-address ${eui48} &&"       \
-        "bootm  ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0"    \
 	"sdboot=echo Trenz-Electronic ${board}  ${scver} && "			\
-                "mmcinfo && "                                                   \
 		"fatload mmc 0 ${userscript_addr} ${userscript_image} &&" 	\
 		"source ${userscript_addr};"					\
 		"echo Copying Linux from SD to RAM... && " 			\
-		"mmcinfo && " 							\
 		"fatload mmc 0 ${kernel_addr} ${kernel_image} && " 		\
 		"fatload mmc 0 ${devicetree_addr} ${devicetree_image} && " 	\
 		"fatload mmc 0 ${ramdisk_addr} ${ramdisk_image} && " 		\
@@ -332,7 +328,6 @@
 		"fdt addr ${devicetree_addr} &&"				\
 		"fdt set /amba/eth local-mac-address ${eui48}\0"		\
 	"sdfetch=echo Read files from SD... && " 				\
-		"mmcinfo && " 							\
 		"mw.b ${bitstream_addr} FF ${bitstream_size} &&" 		\
 		"fatload mmc 0 ${bitstream_addr} ${bitstream_image} && " 	\
 		"mw.b ${kernel_addr} FF ${kernel_size} &&" 			\
@@ -360,7 +355,6 @@
 		"sf update ${devicetree_addr} ${devicetree_offset} ${devicetree_size}\0"	\
 	"linux=bootm  ${kernel_addr} ${ramdisk_addr} ${devicetree_addr}\0"	\
 	"linaro=bootm  ${kernel_addr} - ${devicetree_addr}\0"			\
-	"oldboot=go ${kernel_addr}\0"	\
 	"tftpboot=echo TFTPing Linux to RAM... && " 				\
 		"tftp ${kernel_addr} ${kernel_image} && " 			\
 		"tftp ${devicetree_addr} ${devicetree_image} && " 		\
